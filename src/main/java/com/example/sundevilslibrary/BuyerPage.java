@@ -160,7 +160,7 @@ public class BuyerPage extends HBox{ // extends Parent
 //                filters.getChildren().addAll(Filters, AllBooks, NaturalScience, Computer, Math, EnglishLanguage, Other);
 
 
-                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
+
 
                 accessCart.getChildren().clear();
                 accessCart.getChildren().add(viewCart);
