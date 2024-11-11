@@ -9,19 +9,23 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainApplication extends Application {
 //    @Override
+    private final IntegerProperty loggedOutBuyer= new SimpleIntegerProperty(-1);
     private final IntegerProperty loggedInAs = new SimpleIntegerProperty(-1);
+    private final IntegerProperty loggedOutSeller= new SimpleIntegerProperty(-1);
+    private final IntegerProperty loggedOutAdmin= new SimpleIntegerProperty(-1);
     public void start(Stage stage) throws IOException {
         // load data from text files to initialize buyers. sellers, and admins
-        URL url = getClass().getResource("/users/Buyers.txt");
-        URL urlSellers = getClass().getResource("/users/Sellers.txt");
-        URL urlAdmins = getClass().getResource("/users/Admins.txt");
-        List<Buyer> buyers = LoadBuyers.readBuyersFromFile(url.getPath());
-        List<Seller> sellers = LoadSellers.readSellersFromFile(urlSellers.getPath());
-        List<Admin> admins = LoadAdmins.readAdminsFromFile(urlAdmins.getPath());
+        String url = "src/users/Buyers.txt";
+        String urlSellers = "src/users/Sellers.txt";
+        String urlAdmins = "src/users/Admins.txt";
+        ArrayList<Buyer> buyers = LoadBuyers.readBuyersFromFile(url);
+        ArrayList<Seller> sellers = LoadSellers.readSellersFromFile(urlSellers);
+        ArrayList<Admin> admins = LoadAdmins.readAdminsFromFile(urlAdmins);
 
         // set up scene
         StackPane root = new StackPane();
@@ -35,6 +39,7 @@ public class MainApplication extends Application {
         stage.setScene(scene);
         // binds loggedInAs variable to loginPane's variable, allows main to detect when to switch scenes
         loggedInAs.bind(loginPane.getLoggedInAs());
+
         // listener event awaits change in loggedInAs variable, switches scenes accordingly
         loggedInAs.addListener((observable, oldValue, newValue) -> {
             System.out.println(oldValue);
@@ -42,11 +47,12 @@ public class MainApplication extends Application {
             if (newValue.intValue() == 1) { // Switch to BuyerPage when logged in
                 BuyerPage buyerPage = null;
                 try {
-                    URL urlBooks = getClass().getResource("/Books/Books.txt");
-                    List<Book> books = LoadBooks.readBooksFromFile(urlBooks.getPath());
+                 ;
+                    String filepath = "src/bookDatabase/Books.txt";
+                    List<Book> books = LoadBooks.readBooksFromFile(filepath);
+
 
                     buyerPage = new BuyerPage(LoadBooks.getBooks());
-
 
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -54,8 +60,10 @@ public class MainApplication extends Application {
                 StackPane newRoot = new StackPane();
                 newRoot.setStyle("-fx-background-color: white;");
                 newRoot.getChildren().add(buyerPage);
+
                 Scene buyerScene = new Scene(newRoot, 800, 800);
                 buyerScene.getStylesheets().add(getClass().getResource("/styles/buyers.css").toExternalForm());
+                loggedOutBuyer.bind(buyerPage.getLoggedOut());
                 stage.setTitle("Buyer Search");
                 stage.setScene(buyerScene);
             } else if (newValue.intValue() ==2){
@@ -63,20 +71,57 @@ public class MainApplication extends Application {
                 StackPane newRoot = new StackPane();
                 newRoot.setStyle("-fx-background-color: white;");
                 newRoot.getChildren().add(sellerPage);
+                loggedOutSeller.bind(sellerPage.getLoggedOut());
                 Scene sellerScene = new Scene(newRoot, 800, 800);
+                sellerScene.getStylesheets().add(getClass().getResource("/styles/sellers.css").toExternalForm());
                 stage.setTitle("Seller Page");
                 stage.setScene(sellerScene);
             }else if (newValue.intValue() == 3){
                 AdminPage adminPage = new AdminPage();
+                loggedOutAdmin.bind(adminPage.getLoggedOut());
                 StackPane newRoot = new StackPane();
                 newRoot.setStyle("-fx-background-color: white;");
                 newRoot.getChildren().add(adminPage);
                 Scene adminScene = new Scene(newRoot, 800, 800);
+                adminScene.getStylesheets().add(getClass().getResource("/styles/admins.css").toExternalForm());
                 stage.setTitle("Admin Page");
                 stage.setScene(adminScene);
             }
         });
 
+        loggedOutBuyer.addListener((observable, oldValue, newValue) -> {
+            if (newValue.intValue() == 1) {
+                root.getChildren().remove(loginPane);
+                LoginPane loginPane2 = new LoginPane(LoadBuyers.getBuyers(), LoadAdmins.getAdmins(), LoadSellers.getSellers());
+                root.getChildren().add(loginPane2);
+                stage.setTitle("Login");
+                stage.setScene(scene);
+                loggedInAs.bind(loginPane2.getLoggedInAs());
+            }
+
+        });
+        loggedOutSeller.addListener((observable, oldValue, newValue) -> {
+            if (newValue.intValue() == 1) {
+                root.getChildren().remove(loginPane);
+                LoginPane loginPane2 = new LoginPane(LoadBuyers.getBuyers(), LoadAdmins.getAdmins(), LoadSellers.getSellers());
+                root.getChildren().add(loginPane2);
+                stage.setTitle("Login");
+                stage.setScene(scene);
+                loggedInAs.bind(loginPane2.getLoggedInAs());
+            }
+
+        });
+        loggedOutAdmin.addListener((observable, oldValue, newValue) -> {
+            if (newValue.intValue() == 1) {
+                root.getChildren().remove(loginPane);
+                LoginPane loginPane2 = new LoginPane(LoadBuyers.getBuyers(), LoadAdmins.getAdmins(), LoadSellers.getSellers());
+                root.getChildren().add(loginPane2);
+                stage.setTitle("Login");
+                stage.setScene(scene);
+                loggedInAs.bind(loginPane2.getLoggedInAs());
+            }
+
+        });
         stage.show();
 
 

@@ -11,6 +11,7 @@ public class LoadBooks {
 
     public static ArrayList<Book> readBooksFromFile(String filepath) throws IOException {
 
+        books.clear();
         try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
             String line;
             String titleData = "";
